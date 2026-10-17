@@ -1,0 +1,124 @@
+@startuml
+skinparam backgroundColor white
+skinparam defaultFontName DejaVu Sans
+skinparam defaultFontSize 13
+skinparam defaultFontColor black
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam ClassBackgroundColor #FFFFFF
+skinparam ClassBorderColor black
+skinparam ClassFontColor black
+skinparam ClassAttributeFontColor black
+skinparam ClassStereotypeFontColor black
+skinparam PackageBackgroundColor #F7F7F7
+skinparam PackageBorderColor black
+skinparam PackageFontColor black
+skinparam ArrowColor black
+skinparam ArrowFontColor black
+skinparam NoteFontColor black
+hide empty members
+skinparam nodesep 40
+skinparam ranksep 60
+left to right direction
+
+package "model" {
+  enum AstartesCategory {
+    SCOUT
+    AGGRESSOR
+    TACTICAL
+    LIBRARIAN
+    APOTHECARY
+  }
+  enum Weapon {
+    HEAVY_BOLTGUN
+    MELTAGUN
+    COMBI_PLASMA_GUN
+    FLAMER
+    HEAVY_FLAMER
+  }
+  class Coordinates <<Embeddable>> {
+    - x : double
+    - y : float
+  }
+  class Chapter <<Entity>> {
+    - id : Long
+    - name : String
+    - parentLegion : String
+    - marinesCount : Integer
+    - world : String
+  }
+  class SpaceMarine <<Entity>> {
+    - id : Long
+    - name : String
+    - creationDate : Date
+    - health : long
+    - height : int
+    - category : AstartesCategory
+    - weaponType : Weapon
+  }
+  class AppUser <<Entity>> {
+    - id : Long
+    - username : String
+    - password : String
+  }
+  SpaceMarine *-- "1" Coordinates
+  SpaceMarine "*" --> "1" Chapter
+  SpaceMarine --> AstartesCategory
+  SpaceMarine --> Weapon
+}
+
+package "repository" {
+  interface SpaceMarineRepository
+  interface ChapterRepository
+  interface AppUserRepository
+}
+
+package "service" {
+  class MarineService
+  class ChapterService
+  class SpecialOperationsService
+  class UserService
+  class ChapterCounter
+  class MarineValidator
+  class ChapterValidator
+  class AppUserDetailsService
+}
+
+package "web" {
+  class MarineController
+  class ChapterController
+  class SpecialController
+  class AuthController
+  class EventController
+}
+
+package "event" {
+  class EventHub
+  class ChangeEvent <<record>>
+}
+
+MarineController --> MarineService
+ChapterController --> ChapterService
+SpecialController --> SpecialOperationsService
+AuthController --> UserService
+EventController --> EventHub
+
+MarineService --> SpaceMarineRepository
+MarineService --> ChapterRepository
+MarineService --> MarineValidator
+MarineService --> ChapterCounter
+ChapterService --> ChapterCounter
+ChapterService --> ChapterRepository
+ChapterService --> SpaceMarineRepository
+ChapterService --> ChapterValidator
+SpecialOperationsService --> MarineService
+SpecialOperationsService --> SpaceMarineRepository
+SpecialOperationsService --> ChapterRepository
+UserService --> AppUserRepository
+AppUserDetailsService --> AppUserRepository
+
+MarineService ..> ChangeEvent : publishes
+ChapterService ..> ChangeEvent : publishes
+ChapterCounter ..> ChangeEvent : publishes
+EventHub ..> ChangeEvent : receives
+@enduml
