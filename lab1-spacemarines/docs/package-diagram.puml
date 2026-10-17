@@ -1,0 +1,27 @@
+@startuml
+skinparam packageStyle rectangle
+
+package "ru.itmo.marines" {
+  package web
+  package dto
+  package service
+  package repository
+  package model
+  package event
+  package error
+  package config
+}
+
+web ..> service
+web ..> dto
+web ..> event
+service ..> repository
+service ..> model
+service ..> dto
+service ..> event
+service ..> error
+repository ..> model
+dto ..> model
+web ..> error
+config ..> service : UserDetailsService, PasswordEncoder
+@enduml
